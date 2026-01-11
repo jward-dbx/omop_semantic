@@ -1,0 +1,57 @@
+# Databricks Asset Bundle for OMOP Semantic Layer Metric Views
+#
+# This bundle deploys metric views to Unity Catalog across different environments.
+# It uses a SQL task to execute the dynamic DDL that creates the views.
+#
+# Usage:
+#   databricks bundle deploy --target dev
+#   databricks bundle run deploy_metric_views --target dev
+
+bundle:
+  name: omop_semantic_layer
+
+variables:
+  # Source catalog (Snowflake connection)
+  source_catalog:
+    description: "Snowflake catalog containing OMOP CDM tables"
+  
+  # Target catalog and schema
+  target_catalog:
+    description: "Databricks catalog where metric views will be created"
+  
+  target_schema:
+    description: "Schema within target catalog for metric views"
+
+include:
+  - resources/*.yml
+
+targets:
+  # Development environment (vending machine workspace)
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://fe-sandbox-serverless-rde85f.cloud.databricks.com
+    
+    variables:
+      source_catalog: "conn_sf_cursor_ward_catalog"
+      target_catalog: "serverless_rde85f_catalog"
+      target_schema: "semantic_omop_cursor"
+    
+    # Run job after deployment to create views
+    run_as:
+      user_name: justin.ward@databricks.com
+  
+  # Production environment (to be configured)
+  prod:
+    mode: production
+    workspace:
+      host: ${DATABRICKS_HOST}
+    
+    variables:
+      source_catalog: ${PROD_SOURCE_CATALOG}
+      target_catalog: ${PROD_TARGET_CATALOG}
+      target_schema: ${PROD_TARGET_SCHEMA}
+    
+    run_as:
+      service_principal_name: ${PROD_SERVICE_PRINCIPAL}

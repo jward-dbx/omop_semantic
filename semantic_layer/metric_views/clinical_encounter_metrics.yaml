@@ -1,0 +1,65 @@
+version: 1.1
+
+source: conn_sf_cursor_ward_catalog.OMOP.VISIT_OCCURRENCE
+
+joins:
+  - name: person
+    source: conn_sf_cursor_ward_catalog.OMOP.PERSON
+    "on": source.person_id = person.person_id
+  - name: care_site
+    source: conn_sf_cursor_ward_catalog.OMOP.CARE_SITE
+    "on": source.care_site_id = care_site.care_site_id
+  - name: provider
+    source: conn_sf_cursor_ward_catalog.OMOP.PROVIDER
+    "on": source.provider_id = provider.provider_id
+
+dimensions:
+  - name: Visit Type
+    expr: CASE source.visit_concept_id WHEN 9201 THEN 'Inpatient' WHEN 9202 THEN 'Outpatient'
+      WHEN 9203 THEN 'Emergency Room' ELSE 'Other' END
+  - name: Visit Year
+    expr: YEAR(source.visit_start_date)
+  - name: Visit Month
+    expr: "DATE_TRUNC('MONTH', source.visit_start_date)"
+  - name: Visit Date
+    expr: source.visit_start_date
+  - name: Day of Week
+    expr: DAYOFWEEK(source.visit_start_date)
+  - name: Care Site
+    expr: care_site.care_site_name
+  - name: Provider Name
+    expr: provider.provider_name
+  - name: Patient Gender
+    expr: CASE person.gender_concept_id WHEN 8507 THEN 'Male' WHEN 8532 THEN 'Female'
+      ELSE 'Unknown' END
+  - name: Patient Age Group
+    expr: CASE WHEN YEAR(source.visit_start_date) - person.year_of_birth < 18 THEN
+      '0-17' WHEN YEAR(source.visit_start_date) - person.year_of_birth < 30 THEN '18-29'
+      WHEN YEAR(source.visit_start_date) - person.year_of_birth < 45 THEN '30-44'
+      WHEN YEAR(source.visit_start_date) - person.year_of_birth < 65 THEN '45-64'
+      ELSE '65+' END
+
+measures:
+  - name: Total Visits
+    expr: COUNT(source.visit_occurrence_id)
+  - name: Unique Patients
+    expr: COUNT(DISTINCT source.person_id)
+  - name: Visits Per Patient
+    expr: "COUNT(source.visit_occurrence_id) * 1.0 / NULLIF(COUNT(DISTINCT source.person_id),\
+      \ 0)"
+  - name: Inpatient Visits
+    expr: COUNT(CASE WHEN source.visit_concept_id = 9201 THEN source.visit_occurrence_id
+      END)
+  - name: Outpatient Visits
+    expr: COUNT(CASE WHEN source.visit_concept_id = 9202 THEN source.visit_occurrence_id
+      END)
+  - name: Emergency Visits
+    expr: COUNT(CASE WHEN source.visit_concept_id = 9203 THEN source.visit_occurrence_id
+      END)
+  - name: Average Length of Stay Days
+    expr: "AVG(DATEDIFF(source.visit_end_date, source.visit_start_date))"
+  - name: Total Length of Stay Days
+    expr: "SUM(DATEDIFF(source.visit_end_date, source.visit_start_date))"
+  - name: ER Utilization Rate
+    expr: "COUNT(CASE WHEN source.visit_concept_id = 9203 THEN source.visit_occurrence_id\
+      \ END) * 100.0 / NULLIF(COUNT(source.visit_occurrence_id), 0)"

@@ -1,0 +1,69 @@
+version: 1.1
+
+source: conn_sf_cursor_ward_catalog.OMOP.DRUG_EXPOSURE
+
+joins:
+  - name: person
+    source: conn_sf_cursor_ward_catalog.OMOP.PERSON
+    "on": source.person_id = person.person_id
+  - name: concept
+    source: conn_sf_cursor_ward_catalog.OMOP.CONCEPT
+    "on": source.drug_concept_id = concept.concept_id
+  - name: visit
+    source: conn_sf_cursor_ward_catalog.OMOP.VISIT_OCCURRENCE
+    "on": source.visit_occurrence_id = visit.visit_occurrence_id
+  - name: provider
+    source: conn_sf_cursor_ward_catalog.OMOP.PROVIDER
+    "on": source.provider_id = provider.provider_id
+
+dimensions:
+  - name: Drug Name
+    expr: concept.concept_name
+  - name: Drug Class
+    expr: CASE WHEN concept.concept_name LIKE '%metformin%' THEN 'Antidiabetic' WHEN
+      concept.concept_name LIKE '%lisinopril%' THEN 'Antihypertensive' WHEN concept.concept_name
+      LIKE '%atorvastatin%' THEN 'Statin' WHEN concept.concept_name LIKE '%albuterol%'
+      THEN 'Bronchodilator' ELSE 'Other' END
+  - name: Prescription Year
+    expr: YEAR(source.drug_exposure_start_date)
+  - name: Prescription Month
+    expr: "DATE_TRUNC('MONTH', source.drug_exposure_start_date)"
+  - name: Patient Gender
+    expr: CASE person.gender_concept_id WHEN 8507 THEN 'Male' WHEN 8532 THEN 'Female'
+      ELSE 'Unknown' END
+  - name: Patient Age Group
+    expr: CASE WHEN YEAR(source.drug_exposure_start_date) - person.year_of_birth <
+      18 THEN '0-17' WHEN YEAR(source.drug_exposure_start_date) - person.year_of_birth
+      < 30 THEN '18-29' WHEN YEAR(source.drug_exposure_start_date) - person.year_of_birth
+      < 45 THEN '30-44' WHEN YEAR(source.drug_exposure_start_date) - person.year_of_birth
+      < 65 THEN '45-64' ELSE '65+' END
+  - name: Prescribing Provider
+    expr: provider.provider_name
+  - name: Visit Type
+    expr: CASE visit.visit_concept_id WHEN 9201 THEN 'Inpatient' WHEN 9202 THEN 'Outpatient'
+      WHEN 9203 THEN 'Emergency Room' ELSE 'Other' END
+
+measures:
+  - name: Total Prescriptions
+    expr: COUNT(source.drug_exposure_id)
+  - name: Unique Patients On Medication
+    expr: COUNT(DISTINCT source.person_id)
+  - name: Prescriptions Per Patient
+    expr: "COUNT(source.drug_exposure_id) * 1.0 / NULLIF(COUNT(DISTINCT source.person_id),\
+      \ 0)"
+  - name: Total Days Supply
+    expr: SUM(source.days_supply)
+  - name: Average Days Supply
+    expr: AVG(source.days_supply)
+  - name: Total Quantity Dispensed
+    expr: SUM(source.quantity)
+  - name: Average Refills
+    expr: AVG(source.refills)
+  - name: Patients With Refills
+    expr: COUNT(DISTINCT CASE WHEN source.refills > 0 THEN source.person_id END)
+  - name: Active Prescriptions
+    expr: COUNT(CASE WHEN source.drug_exposure_end_date >= CURRENT_DATE THEN source.drug_exposure_id
+      END)
+  - name: Chronic Medication Users
+    expr: COUNT(DISTINCT CASE WHEN source.days_supply >= 90 THEN source.person_id
+      END)

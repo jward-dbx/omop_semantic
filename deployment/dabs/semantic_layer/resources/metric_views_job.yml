@@ -1,0 +1,72 @@
+# Metric Views Deployment Job
+#
+# This job executes the SQL script that creates/updates all metric views
+# Uses serverless SQL warehouse for execution
+
+resources:
+  jobs:
+    deploy_metric_views:
+      name: "[${bundle.target}] Deploy OMOP Metric Views"
+      
+      parameters:
+        - name: source_catalog
+          default: ${var.source_catalog}
+        - name: target_catalog
+          default: ${var.target_catalog}
+        - name: target_schema
+          default: ${var.target_schema}
+      
+      tasks:
+        - task_key: deploy_views
+          sql_task:
+            warehouse_id: ${resources.sql_endpoints.serverless_warehouse.id}
+            file:
+              source: WORKSPACE
+              path: ${workspace.file_path}/deploy_metric_views.sql
+            parameters:
+              source_catalog: "{{job.parameters.source_catalog}}"
+              target_catalog: "{{job.parameters.target_catalog}}"
+              target_schema: "{{job.parameters.target_schema}}"
+          
+          timeout_seconds: 1800
+          max_retries: 1
+          min_retry_interval_millis: 10000
+      
+      # No schedule - run on demand only
+      # schedule:
+      #   pause_status: PAUSED
+      
+      tags:
+        environment: ${bundle.target}
+        component: semantic_layer
+        omop_version: "5.4"
+        deployed_by: dabs
+      
+      max_concurrent_runs: 1
+      
+      email_notifications:
+        on_failure:
+          - ${workspace.current_user.userName}
+        on_success:
+          - ${workspace.current_user.userName}
+  
+  # Create/use serverless SQL warehouse
+  sql_endpoints:
+    serverless_warehouse:
+      name: "[${bundle.target}] OMOP Semantic Layer Warehouse"
+      cluster_size: "Small"
+      enable_serverless_compute: true
+      auto_stop_mins: 10
+      
+      tags:
+        custom_tags:
+          - key: "Environment"
+            value: ${bundle.target}
+          - key: "Component"
+            value: "semantic_layer"
+  
+  # Upload SQL script to workspace
+  files:
+    deploy_metric_views_sql:
+      source: ../../../sql/ddl/deploy_metric_views.sql
+      path: ${workspace.file_path}/deploy_metric_views.sql

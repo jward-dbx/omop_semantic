@@ -1,0 +1,768 @@
+{
+  "version": 1,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "01f0e4d0b8ac1f559450c78dc2e40faa",
+        "question": [
+          "What's the average HbA1c for diabetic patients?"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8ab1a22a9e0f587e0f58356",
+        "question": [
+          "Show me blood pressure control rates for hypertensive patients"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8ab1201b9fe7e10965c97d2",
+        "question": [
+          "What percentage of diabetes patients have HbA1c under control (<7%)?"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8aa1936bca98952e0fedf27",
+        "question": [
+          "How many patients are on chronic medications (90+ days)?"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8aa12f492891fb79987a026",
+        "question": [
+          "What are the most commonly prescribed medications?"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8a91d228295601f81a48c86",
+        "question": [
+          "How many patients have both diabetes and hypertension?"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8a916d1810a91a4d447a8c4",
+        "question": [
+          "Show me the top 10 conditions by patient count"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8a9102197073885ea40530b",
+        "question": [
+          "What is the prevalence of Type 2 Diabetes in our population?"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8a8197db9ece7180f4bb46f",
+        "question": [
+          "How many patients had ER visits?"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8a81392a7102598fafc555d",
+        "question": [
+          "What's the average length of stay for inpatient admissions?"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8a71d79a1be581e0db130eb",
+        "question": [
+          "Show me total visits by type in the last year"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8a714908f70d0c5d2165f48",
+        "question": [
+          "What is the demographic breakdown of our patient population?"
+        ]
+      },
+      {
+        "id": "01f0e4d0b8a61d88b834faa106bcf67e",
+        "question": [
+          "How many patients do we have by gender and age group?"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "metric_views": [
+      {
+        "identifier": "serverless_rde85f_catalog.semantic_omop.clinical_encounter_metrics",
+        "column_configs": [
+          {
+            "column_name": "Average Length of Stay Days"
+          },
+          {
+            "column_name": "Care Site",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Day of Week",
+            "get_example_values": true
+          },
+          {
+            "column_name": "ER Utilization Rate"
+          },
+          {
+            "column_name": "Emergency Visits"
+          },
+          {
+            "column_name": "Inpatient Visits"
+          },
+          {
+            "column_name": "Outpatient Visits"
+          },
+          {
+            "column_name": "Patient Age Group",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Patient Gender",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Provider Name",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Total Length of Stay Days"
+          },
+          {
+            "column_name": "Total Visits"
+          },
+          {
+            "column_name": "Unique Patients"
+          },
+          {
+            "column_name": "Visit Date",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Visit Month",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Visit Type",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Visit Year",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Visits Per Patient"
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_rde85f_catalog.semantic_omop.condition_metrics",
+        "column_configs": [
+          {
+            "column_name": "Active Conditions"
+          },
+          {
+            "column_name": "Condition Category",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Condition Name",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Diabetes Patients"
+          },
+          {
+            "column_name": "Diagnoses Per Patient"
+          },
+          {
+            "column_name": "Diagnosis Month",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Diagnosis Year",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Hypertension Patients"
+          },
+          {
+            "column_name": "Patient Age Group",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Patient Gender",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Prevalence Rate Per 100 Patients"
+          },
+          {
+            "column_name": "Provider Name",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Resolved Conditions"
+          },
+          {
+            "column_name": "Total Diagnoses"
+          },
+          {
+            "column_name": "Unique Patients With Condition"
+          },
+          {
+            "column_name": "Visit Type",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_rde85f_catalog.semantic_omop.lab_vitals_metrics",
+        "column_configs": [
+          {
+            "column_name": "Abnormal Result Rate"
+          },
+          {
+            "column_name": "Abnormal Results Count"
+          },
+          {
+            "column_name": "Average Value"
+          },
+          {
+            "column_name": "Elevated Glucose Count"
+          },
+          {
+            "column_name": "Hypertensive Readings Count"
+          },
+          {
+            "column_name": "Max Value"
+          },
+          {
+            "column_name": "Measurement Month",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Measurement Name",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Measurement Type",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Measurement Year",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Median Value"
+          },
+          {
+            "column_name": "Min Value"
+          },
+          {
+            "column_name": "Patient Age Group",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Patient Gender",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Patients With Abnormal Results"
+          },
+          {
+            "column_name": "Provider Name",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Result Range Status",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Tests Per Patient"
+          },
+          {
+            "column_name": "Total Measurements"
+          },
+          {
+            "column_name": "Unique Patients Tested"
+          },
+          {
+            "column_name": "Visit Type",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_rde85f_catalog.semantic_omop.medication_utilization_metrics",
+        "column_configs": [
+          {
+            "column_name": "Active Prescriptions"
+          },
+          {
+            "column_name": "Average Days Supply"
+          },
+          {
+            "column_name": "Average Refills"
+          },
+          {
+            "column_name": "Chronic Medication Users"
+          },
+          {
+            "column_name": "Drug Class",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Drug Name",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Patient Age Group",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Patient Gender",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Patients With Refills"
+          },
+          {
+            "column_name": "Prescribing Provider",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Prescription Month",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Prescription Year",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Prescriptions Per Patient"
+          },
+          {
+            "column_name": "Total Days Supply"
+          },
+          {
+            "column_name": "Total Prescriptions"
+          },
+          {
+            "column_name": "Total Quantity Dispensed"
+          },
+          {
+            "column_name": "Unique Patients On Medication"
+          },
+          {
+            "column_name": "Visit Type",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_rde85f_catalog.semantic_omop.patient_population_metrics",
+        "column_configs": [
+          {
+            "column_name": "Active Enrollment Rate"
+          },
+          {
+            "column_name": "Age Group",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Average Age"
+          },
+          {
+            "column_name": "Birth Year",
+            "get_example_values": true
+          },
+          {
+            "column_name": "City",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Ethnicity",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Gender",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Median Age"
+          },
+          {
+            "column_name": "Patients With Active Enrollment"
+          },
+          {
+            "column_name": "Provider Name",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Race",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "State",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Total Patients"
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_rde85f_catalog.semantic_omop.procedure_utilization_metrics",
+        "column_configs": [
+          {
+            "column_name": "Cardiac Testing Procedures"
+          },
+          {
+            "column_name": "Imaging Procedures"
+          },
+          {
+            "column_name": "Patient Age Group",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Patient Gender",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Performing Provider",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Procedure Category",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Procedure Month",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Procedure Name",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Procedure Year",
+            "get_example_values": true
+          },
+          {
+            "column_name": "Procedures Per Patient"
+          },
+          {
+            "column_name": "Total Procedures"
+          },
+          {
+            "column_name": "Unique Patients With Procedures"
+          },
+          {
+            "column_name": "Visit Type",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Vital Signs Checks"
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_rde85f_catalog.semantic_omop.provider_performance_metrics",
+        "column_configs": [
+          {
+            "column_name": "Active Patient Panel Size"
+          },
+          {
+            "column_name": "Average Panel Size"
+          },
+          {
+            "column_name": "Average Visits Per Provider"
+          },
+          {
+            "column_name": "Care Site",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Provider Gender",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Provider NPI",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Provider Name",
+            "get_example_values": true,
+            "build_value_dictionary": true
+          },
+          {
+            "column_name": "Total Providers"
+          },
+          {
+            "column_name": "Total Visits By Provider"
+          }
+        ]
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "01f0e4cfb1881624bd1e81948214cc0d",
+        "content": [
+          "This space uses OMOP Common Data Model v5.4 data from Snowflake accessed via Databricks Lakehouse Federation. All queries use metric views that require the MEASURE() function for aggregations.\n",
+          "\n",
+          "IMPORTANT QUERY PATTERN:\n",
+          "- Always use MEASURE() function when aggregating metric view data\n",
+          "- Filter on dimensions without MEASURE()\n",
+          "- Aggregate measures with MEASURE()\n",
+          "- Example: SELECT age_group, MEASURE(total_patients) FROM table GROUP BY age_group\n",
+          "\n",
+          "HEALTHCARE TERMINOLOGY:\n",
+          "- \"Patients\" = unique individuals in the system\n",
+          "- \"Visits\" or \"Encounters\" = healthcare interactions (inpatient/outpatient/ER)\n",
+          "- \"Conditions\" or \"Diagnoses\" = medical problems\n",
+          "- \"Medications\" or \"Drugs\" or \"Prescriptions\" = prescribed treatments\n",
+          "- \"Labs\" or \"Vitals\" = clinical measurements\n",
+          "- \"Providers\" or \"Physicians\" or \"Clinicians\" = healthcare professionals\n",
+          "\n",
+          "COMMON ABBREVIATIONS:\n",
+          "- ER/ED = Emergency Room/Emergency Department\n",
+          "- IP = Inpatient (hospital admission)\n",
+          "- OP = Outpatient (clinic visit)\n",
+          "- LOS = Length of Stay (days in hospital)\n",
+          "- BP = Blood Pressure (SBP=Systolic, DBP=Diastolic)\n",
+          "- HbA1c = Hemoglobin A1c (diabetes control, measured over 3 months)\n",
+          "- Dx = Diagnosis\n",
+          "- Rx = Prescription\n",
+          "\n",
+          "AGE GROUP DEFINITIONS:\n",
+          "- Pediatric: 0-17 years\n",
+          "- Young Adult: 18-29 years\n",
+          "- Adult: 30-44 years\n",
+          "- Middle-aged: 45-64 years\n",
+          "- Elderly/Senior: 65+ years\n",
+          "\n",
+          "QUALITY METRIC TARGETS:\n",
+          "- Blood Pressure Control: <140/90 mmHg is considered controlled\n",
+          "- Diabetes Control (HbA1c): <7% is controlled, \u22657% is uncontrolled\n",
+          "- Elevated Glucose: >100 mg/dL fasting is elevated\n",
+          "\n",
+          "DATA QUALITY NOTES:\n",
+          "- Condition end dates may be NULL for chronic conditions (still active)\n",
+          "- Observation periods indicate enrollment/coverage periods\n",
+          "- Visit dates represent actual healthcare encounters\n",
+          "- Measurements have normal ranges defined in range_low and range_high columns\n",
+          "\n",
+          "COMMON DIMENSIONS (for grouping/filtering):\n",
+          "- Patient: gender, age_group, race, ethnicity, state, city\n",
+          "- Visit: visit_type, visit_year, visit_month, care_site, provider\n",
+          "- Condition: condition_name, condition_category\n",
+          "- Medication: drug_name, drug_class\n",
+          "- Measurement: measurement_name, measurement_type, result_range_status\n",
+          "\n",
+          "COMMON MEASURES (use with MEASURE() function):\n",
+          "- Patient counts: total_patients, unique_patients, panel_size\n",
+          "- Visit metrics: total_visits, visits_per_patient, length_of_stay\n",
+          "- Prevalence: prevalence_rate, patients_with_condition\n",
+          "- Lab metrics: average_value, abnormal_result_rate\n",
+          "- Utilization: er_utilization_rate, chronic_medication_users"
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "01f0e4ce175010da94e0a66e2ef037ce",
+        "question": [
+          "What is the total patient count grouped by gender?"
+        ],
+        "sql": [
+          "SELECT MEASURE(`Total Patients`), `Gender` FROM patient_population_metrics GROUP BY ALL"
+        ]
+      },
+      {
+        "id": "01f0e4cfe6c415ca89acd3c8ad7a508b",
+        "question": [
+          "How many patients do we have by age group and gender? What is the demographic breakdown of our patient population? Show me patient counts by age and gender. What's the age distribution of patients?"
+        ],
+        "sql": [
+          "SELECT \n",
+          "  age_group,\n",
+          "  gender,\n",
+          "  MEASURE(total_patients) as patient_count,\n",
+          "  MEASURE(average_age) as avg_age\n",
+          "FROM serverless_rde85f_catalog.semantic_omop.patient_population_metrics\n",
+          "GROUP BY age_group, gender\n",
+          "ORDER BY age_group, gender"
+        ],
+        "usage_guidance": [
+          "Use this query when users ask about patient demographics, population breakdown, age distribution, or gender split. This is the primary query for understanding the overall patient population characteristics."
+        ]
+      },
+      {
+        "id": "01f0e4d033fc1aada1b9373915cd64f6",
+        "question": [
+          "How many visits by type? What are total visits broken down by inpatient, outpatient, and ER? Show me healthcare utilization patterns. How many patients visited the ER? What's the visit volume by encounter type?"
+        ],
+        "sql": [
+          "SELECT \n",
+          "  visit_type,\n",
+          "  MEASURE(total_visits) as total_visits,\n",
+          "  MEASURE(unique_patients) as unique_patients,\n",
+          "  MEASURE(visits_per_patient) as avg_visits_per_patient\n",
+          "FROM serverless_rde85f_catalog.semantic_omop.clinical_encounter_metrics\n",
+          "GROUP BY visit_type\n",
+          "ORDER BY total_visits DESC"
+        ],
+        "usage_guidance": [
+          "Use for questions about visit patterns, encounter types, ER usage, or healthcare utilization. This shows both volume (total visits) and unique patients for each visit type."
+        ]
+      },
+      {
+        "id": "01f0e4d04211168a8b6d34662857832f",
+        "question": [
+          "What are the top conditions? What is the prevalence of diabetes/hypertension? Show me most common diagnoses. What diseases affect the most patients? What's the disease burden in our population?"
+        ],
+        "sql": [
+          "SELECT \n",
+          "  condition_name,\n",
+          "  MEASURE(total_diagnoses) as diagnosis_count,\n",
+          "  MEASURE(unique_patients_with_condition) as patient_count,\n",
+          "  MEASURE(prevalence_rate) as prevalence_percent\n",
+          "FROM serverless_rde85f_catalog.semantic_omop.condition_metrics\n",
+          "GROUP BY condition_name\n",
+          "ORDER BY patient_count DESC\n",
+          "LIMIT 10"
+        ],
+        "usage_guidance": [
+          "Use when asking about disease burden, condition prevalence, or most common diagnoses. The prevalence_rate shows what percentage of the total population has each condition."
+        ]
+      },
+      {
+        "id": "01f0e4d04db1105e82e2b12836ca4a9a",
+        "question": [
+          "How does diabetes prevalence vary by age? Show me hypertension rates across age groups. What's the age distribution for chronic diseases? Compare diabetes and hypertension by age."
+        ],
+        "sql": [
+          "SELECT \n",
+          "  age_group,\n",
+          "  condition_name,\n",
+          "  MEASURE(unique_patients_with_condition) as patient_count,\n",
+          "  MEASURE(prevalence_rate) as prevalence_percent\n",
+          "FROM serverless_rde85f_catalog.semantic_omop.condition_metrics\n",
+          "WHERE condition_name IN ('Type 2 Diabetes', 'Hypertension')\n",
+          "GROUP BY age_group, condition_name\n",
+          "ORDER BY age_group, condition_name"
+        ],
+        "usage_guidance": [
+          "Use when analyzing how disease prevalence varies across age groups. Focuses on the two most common chronic conditions but can be modified for other conditions."
+        ]
+      },
+      {
+        "id": "01f0e4d05b531fc795df9eb77fea8210",
+        "question": [
+          "What are the most commonly prescribed medications? Show me medication utilization. How many patients are on each drug? What are the top prescribed drugs?"
+        ],
+        "sql": [
+          "SELECT \n",
+          "  drug_name,\n",
+          "  MEASURE(total_prescriptions) as total_rx,\n",
+          "  MEASURE(patients_on_medication) as patients,\n",
+          "  MEASURE(average_days_supply) as avg_days_supply\n",
+          "FROM serverless_rde85f_catalog.semantic_omop.medication_utilization_metrics\n",
+          "GROUP BY drug_name\n",
+          "ORDER BY patients DESC\n",
+          "LIMIT 10 :param"
+        ],
+        "parameters": [
+          {
+            "name": "param",
+            "type_hint": "STRING"
+          }
+        ],
+        "usage_guidance": [
+          "Use for questions about medication patterns, prescription volumes, or most common drugs. Shows both prescription counts and unique patient counts."
+        ]
+      },
+      {
+        "id": "01f0e4d06cb41f0d8661c672d156fa24",
+        "question": [
+          "How many patients are on long-term medications? Show me chronic medication adherence. What percentage of patients have medications for 90+ days? Which drugs are used for chronic therapy?"
+        ],
+        "sql": [
+          "SELECT \n",
+          "  drug_name,\n",
+          "  MEASURE(chronic_medication_users) as long_term_users,\n",
+          "  MEASURE(patients_on_medication) as total_patients,\n",
+          "  ROUND(MEASURE(chronic_medication_users) * 100.0 / MEASURE(patients_on_medication), 1) as chronic_therapy_percent\n",
+          "FROM serverless_rde85f_catalog.semantic_omop.medication_utilization_metrics\n",
+          "WHERE MEASURE(chronic_medication_users) > 0\n",
+          "GROUP BY drug_name\n",
+          "ORDER BY long_term_users DESC"
+        ],
+        "usage_guidance": [
+          "Use for medication adherence questions or long-term therapy analysis. Chronic medication users are defined as those with 90+ days supply."
+        ]
+      },
+      {
+        "id": "01f0e4d087841e57a4d9faeb044bd8b6",
+        "question": [
+          "What percentage of diabetic patients have controlled HbA1c? How many patients have good diabetes control? Show me diabetes quality metrics. What's the HbA1c control rate?"
+        ],
+        "sql": [
+          "SELECT \n",
+          "  CASE \n",
+          "    WHEN MEASURE(average_value) < 7.0 THEN 'Controlled (<7%)'\n",
+          "    ELSE 'Uncontrolled (>=7%)'\n",
+          "  END as control_status,\n",
+          "  COUNT(DISTINCT person_id) as patient_count,\n",
+          "  ROUND(MEASURE(average_value), 2) as avg_hba1c\n",
+          "FROM serverless_rde85f_catalog.semantic_omop.lab_vitals_metrics\n",
+          "WHERE measurement_name = 'HbA1c'\n",
+          "GROUP BY control_status"
+        ],
+        "usage_guidance": [
+          "Use for diabetes quality measures. HbA1c <7% is considered controlled per clinical guidelines. This is a key quality metric for diabetes management."
+        ]
+      }
+    ]
+  }
+}

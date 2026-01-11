@@ -1,0 +1,61 @@
+version: 1.1
+
+source: conn_sf_cursor_ward_catalog.OMOP.PROCEDURE_OCCURRENCE
+
+joins:
+  - name: person
+    source: conn_sf_cursor_ward_catalog.OMOP.PERSON
+    "on": source.person_id = person.person_id
+  - name: concept
+    source: conn_sf_cursor_ward_catalog.OMOP.CONCEPT
+    "on": source.procedure_concept_id = concept.concept_id
+  - name: visit
+    source: conn_sf_cursor_ward_catalog.OMOP.VISIT_OCCURRENCE
+    "on": source.visit_occurrence_id = visit.visit_occurrence_id
+  - name: provider
+    source: conn_sf_cursor_ward_catalog.OMOP.PROVIDER
+    "on": source.provider_id = provider.provider_id
+
+dimensions:
+  - name: Procedure Name
+    expr: concept.concept_name
+  - name: Procedure Category
+    expr: CASE WHEN concept.concept_name LIKE '%X-ray%' THEN 'Imaging' WHEN concept.concept_name
+      LIKE '%ECG%' OR concept.concept_name LIKE '%Electrocardiogram%' THEN 'Cardiac
+      Testing' WHEN concept.concept_name LIKE '%blood pressure%' THEN 'Vital Signs
+      Check' ELSE 'Other' END
+  - name: Procedure Year
+    expr: YEAR(source.procedure_date)
+  - name: Procedure Month
+    expr: "DATE_TRUNC('MONTH', source.procedure_date)"
+  - name: Patient Gender
+    expr: CASE person.gender_concept_id WHEN 8507 THEN 'Male' WHEN 8532 THEN 'Female'
+      ELSE 'Unknown' END
+  - name: Patient Age Group
+    expr: CASE WHEN YEAR(source.procedure_date) - person.year_of_birth < 18 THEN '0-17'
+      WHEN YEAR(source.procedure_date) - person.year_of_birth < 30 THEN '18-29' WHEN
+      YEAR(source.procedure_date) - person.year_of_birth < 45 THEN '30-44' WHEN YEAR(source.procedure_date)
+      - person.year_of_birth < 65 THEN '45-64' ELSE '65+' END
+  - name: Visit Type
+    expr: CASE visit.visit_concept_id WHEN 9201 THEN 'Inpatient' WHEN 9202 THEN 'Outpatient'
+      WHEN 9203 THEN 'Emergency Room' ELSE 'Other' END
+  - name: Performing Provider
+    expr: provider.provider_name
+
+measures:
+  - name: Total Procedures
+    expr: COUNT(source.procedure_occurrence_id)
+  - name: Unique Patients With Procedures
+    expr: COUNT(DISTINCT source.person_id)
+  - name: Procedures Per Patient
+    expr: "COUNT(source.procedure_occurrence_id) * 1.0 / NULLIF(COUNT(DISTINCT source.person_id),\
+      \ 0)"
+  - name: Imaging Procedures
+    expr: COUNT(CASE WHEN concept.concept_name LIKE '%X-ray%' THEN source.procedure_occurrence_id
+      END)
+  - name: Cardiac Testing Procedures
+    expr: COUNT(CASE WHEN concept.concept_name LIKE '%ECG%' OR concept.concept_name
+      LIKE '%Electrocardiogram%' THEN source.procedure_occurrence_id END)
+  - name: Vital Signs Checks
+    expr: COUNT(CASE WHEN concept.concept_name LIKE '%blood pressure%' THEN source.procedure_occurrence_id
+      END)
