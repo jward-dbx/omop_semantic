@@ -84,3 +84,25 @@ variable "snowflake_password" {
   type        = string
   sensitive   = true
 }
+
+# ============================================================================
+# Catalog Configuration
+# ============================================================================
+
+variable "catalog_name" {
+  description = "Name of the foreign catalog in Databricks"
+  type        = string
+  # Example: "conn_sf_ward_catalog"
+}
+
+variable "catalog_comment" {
+  description = "Description of the catalog"
+  type        = string
+  default     = "Foreign catalog connected to Snowflake"
+}
+
+variable "snowflake_database" {
+  description = "Snowflake database name to map to the catalog"
+  type        = string
+  # Example: "OMOP"
+}
