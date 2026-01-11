@@ -31,13 +31,8 @@ resource "databricks_connection" "snowflake" {
     sfWarehouse   = var.snowflake_warehouse
     sfRole        = var.snowflake_role
     use_proxy     = var.use_proxy
-  }
-
-  # Credentials are managed via Databricks secrets
-  # Reference the secret scope and keys
-  properties = {
-    user     = "{{secrets/${var.secret_scope}/${var.secret_key_username}}}"
-    password = "{{secrets/${var.secret_scope}/${var.secret_key_password}}}"
+    user          = var.snowflake_username
+    password      = var.snowflake_password
   }
 }
 

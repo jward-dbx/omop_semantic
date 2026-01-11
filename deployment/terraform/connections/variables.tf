@@ -70,23 +70,17 @@ variable "use_proxy" {
 }
 
 # ============================================================================
-# Secrets Configuration
+# Snowflake Credentials
 # ============================================================================
 
-variable "secret_scope" {
-  description = "Databricks secret scope containing Snowflake credentials"
+variable "snowflake_username" {
+  description = "Snowflake username for authentication"
   type        = string
-  # Example: "snowflake_creds"
+  # Example: "DATABRICKS_FED_USER"
 }
 
-variable "secret_key_username" {
-  description = "Key name for Snowflake username in the secret scope"
+variable "snowflake_password" {
+  description = "Snowflake password for authentication"
   type        = string
-  default     = "username"
-}
-
-variable "secret_key_password" {
-  description = "Key name for Snowflake password in the secret scope"
-  type        = string
-  default     = "password"
+  sensitive   = true
 }
