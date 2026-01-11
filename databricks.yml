@@ -1,0 +1,46 @@
+# Databricks Asset Bundle Configuration
+bundle:
+  name: omop_semantic
+
+include:
+  - resources/*.yml
+
+# Target environments
+targets:
+  dev:
+    mode: development
+    workspace:
+      host: https://fe-sandbox-serverless-rde85f.cloud.databricks.com
+    
+  prod:
+    mode: production
+    workspace:
+      host: ${var.prod_workspace_url}
+    # Add strict validation and approval gates for production
+    run_as:
+      service_principal_name: ${var.service_principal}
+
+# Variables that can be overridden
+variables:
+  catalog:
+    description: Unity Catalog name
+    default: dev_omop
+  
+  schema:
+    description: Schema name
+    default: cdm_54
+  
+  warehouse_id:
+    description: SQL Warehouse ID
+    default: ${var.warehouse_id}
+
+# Workspace configuration
+workspace:
+  root_path: /Workspace/Projects/${bundle.name}
+  file_path: /Workspace/Projects/${bundle.name}
+  
+# Artifacts configuration
+artifacts:
+  default:
+    type: whl
+    path: .
