@@ -1,0 +1,39 @@
+version: 1.1
+
+source: conn_sf_cursor_ward_catalog.OMOP.PROVIDER
+
+joins:
+  - name: person
+    source: conn_sf_cursor_ward_catalog.OMOP.PERSON
+    "on": source.provider_id = person.provider_id
+  - name: visit
+    source: conn_sf_cursor_ward_catalog.OMOP.VISIT_OCCURRENCE
+    "on": source.provider_id = visit.provider_id
+  - name: care_site
+    source: conn_sf_cursor_ward_catalog.OMOP.CARE_SITE
+    "on": source.care_site_id = care_site.care_site_id
+
+dimensions:
+  - name: Provider Name
+    expr: source.provider_name
+  - name: Provider Gender
+    expr: CASE source.gender_concept_id WHEN 8507 THEN 'Male' WHEN 8532 THEN 'Female'
+      ELSE 'Unknown' END
+  - name: Care Site
+    expr: care_site.care_site_name
+  - name: Provider NPI
+    expr: source.npi
+
+measures:
+  - name: Total Providers
+    expr: COUNT(DISTINCT source.provider_id)
+  - name: Active Patient Panel Size
+    expr: COUNT(DISTINCT person.person_id)
+  - name: Average Panel Size
+    expr: "COUNT(DISTINCT person.person_id) * 1.0 / NULLIF(COUNT(DISTINCT source.provider_id),\
+      \ 0)"
+  - name: Total Visits By Provider
+    expr: COUNT(visit.visit_occurrence_id)
+  - name: Average Visits Per Provider
+    expr: "COUNT(visit.visit_occurrence_id) * 1.0 / NULLIF(COUNT(DISTINCT source.provider_id),\
+      \ 0)"

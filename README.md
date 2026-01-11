@@ -12,8 +12,13 @@ omop_semantic/
 │   │   └── omop/         # OMOP CDM v5.4 implementations
 │   ├── utils/            # Utility functions and helpers
 │   └── validation/       # Data quality and validation
+├── semantic_layer/        # OMOP Semantic Layer
+│   ├── metric_views/     # Metric view YAML definitions (7 views)
+│   ├── README.md         # Overview of metric views
+│   └── DEPLOYMENT_SUMMARY.md  # Deployment documentation
 ├── sql/                   # SQL scripts and queries
-│   ├── ddl/              # Table creation scripts
+│   ├── ddl/              # Table and view creation scripts
+│   │   └── deploy_metric_views.sql  # Metric views deployment
 │   ├── dml/              # Data manipulation queries
 │   └── analysis/         # Analytical queries
 ├── notebooks/            # Databricks notebooks
@@ -29,12 +34,17 @@ omop_semantic/
 ├── docs/               # Documentation
 │   ├── setup/         # Setup and installation guides
 │   ├── architecture/  # Architecture and design docs
+│   ├── connections/   # Connection documentation
+│   ├── recipes/       # Deployment recipes
 │   └── user_guide/    # User guides and tutorials
 ├── resources/          # Additional resources
 │   ├── vocabularies/  # OMOP vocabularies and mappings
 │   └── samples/       # Sample data and examples
 └── deployment/         # Deployment artifacts
-    └── dabs/          # Databricks Asset Bundles
+    ├── dabs/          # Databricks Asset Bundles
+    │   └── semantic_layer/  # Metric views deployment bundle
+    └── terraform/     # Terraform configurations
+        └── connections/  # Unity Catalog connections
 
 .cursorrules            # Cursor AI configuration
 .gitignore             # Git ignore patterns
@@ -104,12 +114,31 @@ This project implements **OMOP CDM v5.4** with:
 - Follow HIPAA compliance guidelines for healthcare data
 - Use Databricks secrets for production deployments
 
+## 🎯 Features
+
+### OMOP Semantic Layer
+- **7 Metric Views** for healthcare analytics:
+  - Patient Population Metrics
+  - Clinical Encounter Metrics
+  - Condition Metrics
+  - Lab & Vitals Metrics
+  - Medication Utilization Metrics
+  - Procedure Utilization Metrics
+  - Provider Performance Metrics
+- **CI/CD Ready**: Databricks Asset Bundles for deployment
+- **Multi-Environment**: Parameterized for dev/prod deployments
+
+### External Data Integration
+- **Snowflake Connection**: Unity Catalog foreign catalog for OMOP data
+- **Terraform Deployments**: IaC for connections and catalogs
+
 ## 📚 Documentation
 
 - [Setup Guide](docs/setup/WORKSPACE_SETUP.md) - Workspace configuration
 - [MCP Setup](docs/setup/MCP_SETUP.md) - Managed MCP server setup
 - [OMOP Implementation](docs/architecture/OMOP_IMPLEMENTATION.md) - OMOP CDM details
-- [Deployment Guide](docs/setup/DEPLOYMENT.md) - How to deploy to Databricks
+- [Deploy Metric Views](docs/recipes/deploy_metric_views.md) - Semantic layer deployment
+- [Deploy Snowflake Connection](docs/recipes/deploy_snowflake_connection.md) - External connection setup
 
 ## 📄 License
 

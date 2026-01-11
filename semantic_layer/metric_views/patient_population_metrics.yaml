@@ -1,0 +1,53 @@
+version: 1.1
+
+source: conn_sf_cursor_ward_catalog.OMOP.PERSON
+
+joins:
+  - name: location
+    source: conn_sf_cursor_ward_catalog.OMOP.LOCATION
+    "on": source.location_id = location.location_id
+  - name: observation_period
+    source: conn_sf_cursor_ward_catalog.OMOP.OBSERVATION_PERIOD
+    "on": source.person_id = observation_period.person_id
+  - name: provider
+    source: conn_sf_cursor_ward_catalog.OMOP.PROVIDER
+    "on": source.provider_id = provider.provider_id
+
+dimensions:
+  - name: Gender
+    expr: CASE source.gender_concept_id WHEN 8507 THEN 'Male' WHEN 8532 THEN 'Female'
+      ELSE 'Unknown' END
+  - name: Age Group
+    expr: CASE WHEN YEAR(CURRENT_DATE) - source.year_of_birth < 18 THEN '0-17' WHEN
+      YEAR(CURRENT_DATE) - source.year_of_birth < 30 THEN '18-29' WHEN YEAR(CURRENT_DATE)
+      - source.year_of_birth < 45 THEN '30-44' WHEN YEAR(CURRENT_DATE) - source.year_of_birth
+      < 65 THEN '45-64' ELSE '65+' END
+  - name: Race
+    expr: CASE source.race_concept_id WHEN 8527 THEN 'White' WHEN 8516 THEN 'Black
+      or African American' WHEN 8515 THEN 'Asian' ELSE 'Other' END
+  - name: Ethnicity
+    expr: CASE source.ethnicity_concept_id WHEN 38003563 THEN 'Hispanic or Latino'
+      WHEN 38003564 THEN 'Not Hispanic or Latino' ELSE 'Unknown' END
+  - name: State
+    expr: location.state
+  - name: City
+    expr: location.city
+  - name: Birth Year
+    expr: source.year_of_birth
+  - name: Provider Name
+    expr: provider.provider_name
+
+measures:
+  - name: Total Patients
+    expr: COUNT(DISTINCT source.person_id)
+  - name: Average Age
+    expr: AVG(YEAR(CURRENT_DATE) - source.year_of_birth)
+  - name: Median Age
+    expr: PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY YEAR(CURRENT_DATE) - source.year_of_birth)
+  - name: Patients With Active Enrollment
+    expr: COUNT(DISTINCT CASE WHEN observation_period.observation_period_end_date
+      >= CURRENT_DATE THEN source.person_id END)
+  - name: Active Enrollment Rate
+    expr: "COUNT(DISTINCT CASE WHEN observation_period.observation_period_end_date\
+      \ >= CURRENT_DATE THEN source.person_id END) * 100.0 / NULLIF(COUNT(DISTINCT\
+      \ source.person_id), 0)"
