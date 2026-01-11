@@ -1,0 +1,32 @@
+# Terraform Variables - Vending Machine Workspace
+#
+# This file contains the specific values for deploying the Snowflake connection
+# to the vending-machine workspace.
+#
+# ⚠️  SECURITY NOTE: This file is tracked in git for documentation purposes.
+#     In production, use one of these secure approaches:
+#     1. Store in a separate .tfvars file that is git-ignored
+#     2. Set as environment variables (TF_VAR_*)
+#     3. Use Terraform Cloud/Enterprise for secure variable storage
+#     4. Pass via command line: terraform apply -var="databricks_token=..."
+
+# Databricks Workspace Configuration
+databricks_host  = "https://fe-sandbox-serverless-rde85f.cloud.databricks.com"
+# databricks_token = "dapi..." # DO NOT commit actual token - set via environment variable
+
+# Connection Configuration
+connection_name    = "conn_sf_ward"
+connection_comment = "Snowflake connection for Iceberg table federation - vending-machine workspace"
+
+# Snowflake Configuration
+snowflake_host      = "REA76172.east-us-2.azure.snowflakecomputing.com"
+snowflake_port      = "443"
+snowflake_warehouse = "COMPUTE_WH"
+snowflake_role      = "ICEBERG_READER"
+use_proxy           = "false"
+
+# Secrets Configuration
+# Note: You must create this secret scope and add credentials before applying
+secret_scope          = "snowflake_creds"
+secret_key_username   = "sf_username"
+secret_key_password   = "sf_password"
