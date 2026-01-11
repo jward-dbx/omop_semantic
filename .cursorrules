@@ -1,0 +1,64 @@
+# Cursor AI Rules for OMOP Semantic Project
+
+## Project Context
+This is an OMOP (Observational Medical Outcomes Partnership) Common Data Model project for semantic analysis and healthcare data standardization deployed on Databricks.
+
+## Code Style & Standards
+- Follow PEP 8 for Python code
+- Use type hints for function parameters and return values
+- Write docstrings for all functions, classes, and modules (Google style)
+- SQL: Use uppercase for keywords, snake_case for table/column names
+- Maximum line length: 100 characters for Python, 120 for SQL
+
+## Databricks-Specific Guidelines
+- Use Unity Catalog three-level namespace: `catalog.schema.table`
+- Always use fully qualified names in production code
+- Follow Medallion Architecture: Bronze (raw) → Silver (cleaned) → Gold (aggregated)
+- Use Delta Lake format for all tables
+- Include appropriate partition strategies for large tables
+
+## OMOP CDM Standards
+- Follow OMOP CDM v5.4 specifications
+- All domain tables must include standard concept IDs
+- Maintain referential integrity with vocabulary tables
+- Document all custom extensions to OMOP CDM
+- Include data quality checks for OMOP constraints
+
+## File Organization
+- ETL scripts: `/src/etl/`
+- OMOP models: `/src/models/omop/`
+- SQL queries: `/sql/`
+- Notebooks: `/notebooks/`
+- Tests: `/tests/`
+- Documentation: `/docs/`
+
+## Testing Requirements
+- Write unit tests for all data transformation functions
+- Include integration tests for end-to-end ETL pipelines
+- Use pytest framework for Python tests
+- Validate OMOP CDM constraints in tests
+
+## Documentation
+- Update README.md for significant changes
+- Document all deployment configurations
+- Include data lineage diagrams for complex transformations
+- Add inline comments for complex business logic
+
+## Security & Compliance
+- Never commit credentials or tokens
+- Use Databricks secrets for sensitive information
+- Ensure PHI/PII data is properly handled
+- Follow HIPAA compliance guidelines for healthcare data
+
+## Deployment
+- Use `vending-machine` workspace for development/testing
+- Deploy to production only after all tests pass
+- Use Databricks Asset Bundles (DABs) for deployment
+- Tag releases with semantic versioning
+
+## AI Assistant Preferences
+- Prefer complete, working solutions over partial code
+- Include error handling and logging in production code
+- Suggest performance optimizations for large-scale data
+- Reference OMOP CDM documentation when implementing standards
+- Use MCP servers (vending-machine-dbsql, vending-machine-system-ai) for queries
