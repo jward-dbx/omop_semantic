@@ -15,12 +15,11 @@ terraform.tfvars
 *.auto.tfvars
 secrets.tfvars
 
-# Terraform lock file (optional - some teams commit this)
-# .terraform.lock.hcl
-
 # Terraform directories
 .terraform/
-.terraform.lock.hcl
+
+# Terraform lock file - COMMIT THIS to ensure consistent provider versions
+# .terraform.lock.hcl is now tracked (removed from ignore)
 
 # Crash log files
 crash.log
