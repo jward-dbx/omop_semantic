@@ -1,237 +1,491 @@
-# Deployment Guide
+# OMOP Semantic Layer - Deployment Guide
 
-This guide covers deploying the OMOP Semantic project to Databricks workspaces.
+## Overview
+
+This guide provides step-by-step instructions for deploying the complete OMOP Semantic Layer infrastructure to Databricks.
+
+## Architecture
+
+The OMOP Semantic Layer consists of three main components:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  OMOP SEMANTIC LAYER                        │
+└─────────────────────────────────────────────────────────────┘
+           │                  │                  │
+           ▼                  ▼                  ▼
+    ┌──────────┐      ┌──────────────┐    ┌──────────┐
+    │ Snowflake│      │    Metric    │    │  Genie   │
+    │Connection│ ───▶ │    Views     │───▶│  Space   │
+    │& Catalog │      │  (7 views)   │    │   (NL)   │
+    └──────────┘      └──────────────┘    └──────────┘
+    Terraform         DABs / SQL          Python API
+```
+
+### Component 1: Snowflake Connection
+- **Technology**: Terraform
+- **Purpose**: Unity Catalog connection to Snowflake OMOP database
+- **Output**: Foreign catalog with OMOP CDM tables
+
+### Component 2: Semantic Layer Metric Views
+- **Technology**: Databricks Asset Bundles (DABs) or SQL
+- **Purpose**: 7 metric views for analytics over OMOP data
+- **Output**: Views in Unity Catalog schema
+
+### Component 3: Genie Space
+- **Technology**: Python + Databricks API
+- **Purpose**: Natural language interface to query metric views
+- **Output**: Genie Space with sample questions and instructions
 
 ## Prerequisites
 
-- Databricks workspace access
-- Databricks CLI installed and configured
-- Unity Catalog enabled
-- Appropriate permissions to create catalogs/schemas
-
-## Deployment Methods
-
-### Method 1: Databricks Asset Bundles (Recommended)
-
-DABs provide infrastructure-as-code for Databricks resources.
-
-#### 1. Install Databricks CLI
+### Required Tools
 
 ```bash
-# Install via pip
-pip install databricks-cli
+# 1. Terraform
+brew install terraform
+# or
+curl -fsSL https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_darwin_amd64.zip -o terraform.zip
+unzip terraform.zip && sudo mv terraform /usr/local/bin/
 
-# Or via curl (macOS/Linux)
+# 2. Databricks CLI
 curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+
+# 3. Python 3 with requests
+pip3 install requests
 ```
 
-#### 2. Configure Authentication
+### Required Credentials
+
+1. **Databricks Workspace**
+   - Workspace URL
+   - Personal Access Token
+
+2. **Snowflake**
+   - Account URL
+   - Username
+   - Password
+   - Warehouse name
+   - Role
+
+3. **SQL Warehouse**
+   - SQL Warehouse ID (for Genie Space)
+
+## Quick Start
+
+### One-Command Deployment
 
 ```bash
-# Using profile
-databricks configure --profile vending-machine
+# Deploy everything to dev environment
+./deploy.sh --env dev --component all
+```
 
-# Or set environment variables
-export DATABRICKS_HOST="https://fe-sandbox-serverless-rde85f.cloud.databricks.com"
+### Component-by-Component Deployment
+
+```bash
+# 1. Deploy Snowflake connection only
+./deploy.sh --env dev --component connection
+
+# 2. Deploy metric views only
+./deploy.sh --env dev --component views
+
+# 3. Deploy Genie Space only
+./deploy.sh --env dev --component genie
+```
+
+## Detailed Deployment Steps
+
+### Step 1: Configure Environment
+
+Create environment-specific configuration:
+
+```bash
+# Create dev environment config
+mkdir -p config/dev
+cat > config/dev/.env << 'EOF'
+# Databricks
+export DATABRICKS_HOST="https://your-workspace.cloud.databricks.com"
 export DATABRICKS_TOKEN="dapi..."
+
+# Snowflake Connection
+export SNOWFLAKE_HOST="account.region.snowflakecomputing.com"
+export SNOWFLAKE_USERNAME="your_username"
+export SNOWFLAKE_PASSWORD="your_password"
+export SNOWFLAKE_WAREHOUSE="COMPUTE_WH"
+export SNOWFLAKE_ROLE="ICEBERG_READER"
+
+# Target Catalogs
+export SOURCE_CATALOG="conn_sf_cursor_ward_catalog"
+export TARGET_CATALOG="serverless_rde85f_catalog"
+export TARGET_SCHEMA="semantic_omop_cursor"
+
+# Genie Space
+export GENIE_WAREHOUSE_ID="your_warehouse_id"
+EOF
 ```
 
-#### 3. Validate Bundle
+### Step 2: Deploy Snowflake Connection
+
+**Using Terraform:**
 
 ```bash
-cd /path/to/omop_semantic
-databricks bundle validate
+cd deployment/terraform/connections
+
+# Initialize Terraform
+terraform init
+
+# Review planned changes
+terraform plan
+
+# Apply configuration
+terraform apply
+
+# Verify
+terraform show
 ```
 
-#### 4. Deploy to Development
+**What Gets Created:**
+- Unity Catalog connection: `conn_sf_cursor_ward`
+- Foreign catalog: `conn_sf_cursor_ward_catalog`
+- Access to Snowflake OMOP database
+
+### Step 3: Deploy Metric Views
+
+**Option A: Databricks Asset Bundles (Recommended)**
 
 ```bash
-databricks bundle deploy -t dev
+cd deployment/dabs/semantic_layer
+
+# Validate bundle
+databricks bundle validate --target dev
+
+# Deploy resources (creates job and warehouse)
+databricks bundle deploy --target dev
+
+# Run deployment job
+databricks bundle run deploy_metric_views --target dev
 ```
 
-#### 5. Deploy to Production
+**Option B: Manual SQL Deployment**
+
+1. Open Databricks SQL Editor
+2. Copy contents of `sql/ddl/deploy_metric_views.sql`
+3. Update variables at the top:
+   ```sql
+   CREATE WIDGET TEXT source_catalog DEFAULT 'conn_sf_cursor_ward_catalog';
+   CREATE WIDGET TEXT target_catalog DEFAULT 'serverless_rde85f_catalog';
+   CREATE WIDGET TEXT target_schema DEFAULT 'semantic_omop_cursor';
+   ```
+4. Execute the SQL
+
+**What Gets Created:**
+- 7 metric views in `serverless_rde85f_catalog.semantic_omop_cursor`:
+  - `patient_population_metrics`
+  - `clinical_encounter_metrics`
+  - `condition_metrics`
+  - `lab_vitals_metrics`
+  - `medication_utilization_metrics`
+  - `procedure_utilization_metrics`
+  - `provider_performance_metrics`
+
+### Step 4: Deploy Genie Space
 
 ```bash
-databricks bundle deploy -t prod
+cd resources/genie
+
+# Set credentials
+export DATABRICKS_TOKEN="dapi..."
+
+# Deploy
+python3 deploy_genie_space.py \
+  --name "OMOP Semantic Layer" \
+  --warehouse-id "your_warehouse_id"
 ```
 
-### Method 2: Manual Deployment via Workspace
+**What Gets Created:**
+- Genie Space with:
+  - 7 metric views configured
+  - 13 sample questions
+  - 8 example SQL queries
+  - Healthcare terminology instructions
 
-#### 1. Upload Code
+## Verification
+
+### 1. Verify Snowflake Connection
+
+```sql
+-- List catalogs
+SHOW CATALOGS LIKE 'conn_sf_cursor_ward_catalog';
+
+-- List schemas
+SHOW SCHEMAS IN conn_sf_cursor_ward_catalog;
+
+-- List tables
+SHOW TABLES IN conn_sf_cursor_ward_catalog.OMOP;
+```
+
+### 2. Verify Metric Views
+
+```sql
+-- List views
+SHOW VIEWS IN serverless_rde85f_catalog.semantic_omop_cursor;
+
+-- Test a view (remember: use MEASURE() for aggregations)
+SELECT 
+  Gender,
+  MEASURE(`Total Patients`) as patient_count
+FROM serverless_rde85f_catalog.semantic_omop_cursor.patient_population_metrics
+GROUP BY Gender;
+```
+
+### 3. Verify Genie Space
+
+1. Navigate to the Genie Space URL (provided in deployment output)
+2. Try a sample question: "How many patients do we have by age group?"
+3. Verify SQL is generated correctly
+4. Check results are returned
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Terraform: Connection Failed
+
+**Error**: `Incorrect username or password was specified`
+
+**Solution**:
+- Verify credentials in `terraform.tfvars`
+- Ensure password includes special characters (e.g., `!`)
+- Test Snowflake login directly
+
+#### 2. Metric Views: Cannot Create via API
+
+**Error**: `table_type must be EXTERNAL`
+
+**Solution**:
+- Metric views require Unity Catalog compute
+- Use DABs or SQL Editor (not API)
+- Cannot be created via `curl` or Python requests
+
+#### 3. Genie Space: Metric Views Not Found
+
+**Error**: `Table does not exist`
+
+**Solution**:
+- Ensure metric views are created first (Step 3)
+- Verify catalog/schema names match in Genie config
+- Check warehouse has access to the views
+
+#### 4. DABs: Warehouse ID Required
+
+**Error**: `warehouse_id is required`
+
+**Solution**:
+- Get warehouse ID: `databricks sql warehouses list`
+- Update `databricks.yml` with the ID
+- Or let bundle create serverless warehouse
+
+### Debugging Commands
 
 ```bash
-# Upload notebooks
-databricks workspace import-dir ./notebooks /Workspace/Projects/omop_semantic/notebooks
+# Check Terraform state
+cd deployment/terraform/connections
+terraform state list
+terraform state show databricks_connection.snowflake
 
-# Upload Python modules
-databricks fs cp -r ./src dbfs:/mnt/omop_semantic/src/
+# Check DABs deployment
+cd deployment/dabs/semantic_layer
+databricks bundle summary --target dev
+
+# Check Genie Space
+curl -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+  "https://[workspace]/api/2.0/genie/spaces"
+
+# Check metric views via API
+curl -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+  "https://[workspace]/api/2.1/unity-catalog/tables?catalog_name=serverless_rde85f_catalog&schema_name=semantic_omop_cursor"
 ```
 
-#### 2. Create Jobs Manually
+## Environment Management
 
-Use the Databricks UI to:
-1. Navigate to Workflows
-2. Create new job
-3. Configure tasks and schedules
-4. Set up dependencies
+### Development Environment
 
-### Method 3: CI/CD Pipeline
+```bash
+./deploy.sh --env dev --component all
+```
 
-For automated deployments, integrate with GitHub Actions or Azure DevOps.
+- Uses `config/dev/.env`
+- Deploys to dev workspace
+- Names include `[dev]` prefix
 
-#### GitHub Actions Example
+### Production Environment
+
+```bash
+./deploy.sh --env prod --component all
+```
+
+- Uses `config/prod/.env`
+- Deploys to prod workspace
+- Names include `[prod]` prefix
+- Requires additional approvals
+
+## CI/CD Integration
+
+### GitHub Actions Example
 
 ```yaml
-name: Deploy to Databricks
+name: Deploy OMOP Semantic Layer
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'dev'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Deploy to Databricks
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      
+      - name: Setup Databricks CLI
         run: |
-          databricks bundle deploy -t prod
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+      
+      - name: Configure Credentials
         env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          databricks configure --host "$DATABRICKS_HOST" --token "$DATABRICKS_TOKEN"
+      
+      - name: Deploy
+        env:
+          TF_VAR_databricks_token: ${{ secrets.DATABRICKS_TOKEN }}
+          TF_VAR_snowflake_password: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        run: |
+          ./deploy.sh --env ${{ github.event.inputs.environment || 'dev' }} --component all
 ```
 
-## Environment Configuration
+## Rollback Procedures
 
-### Development (vending-machine)
+### Rollback Connection
 
-```yaml
-catalog: dev_omop
-schema: cdm_54
-warehouse_id: <warehouse-id>
-cluster_policy: standard
+```bash
+cd deployment/terraform/connections
+terraform destroy
 ```
 
-### Production
-
-```yaml
-catalog: prod_omop
-schema: cdm_54
-warehouse_id: <prod-warehouse-id>
-cluster_policy: production
-enable_autoscaling: true
-min_workers: 2
-max_workers: 8
-```
-
-## Initial Setup Tasks
-
-After deployment, run these one-time setup tasks:
-
-### 1. Create Unity Catalog Structure
+### Rollback Metric Views
 
 ```sql
--- Create catalogs
-CREATE CATALOG IF NOT EXISTS dev_omop;
-CREATE CATALOG IF NOT EXISTS prod_omop;
+USE CATALOG serverless_rde85f_catalog;
+USE SCHEMA semantic_omop_cursor;
 
--- Create schemas
-CREATE SCHEMA IF NOT EXISTS dev_omop.bronze_raw;
-CREATE SCHEMA IF NOT EXISTS dev_omop.silver_clean;
-CREATE SCHEMA IF NOT EXISTS dev_omop.gold_omop;
-
--- Set up permissions
-GRANT USE CATALOG ON CATALOG dev_omop TO `data_engineers`;
-GRANT CREATE SCHEMA ON CATALOG dev_omop TO `data_engineers`;
+-- Drop all views
+DROP VIEW IF EXISTS patient_population_metrics;
+DROP VIEW IF EXISTS clinical_encounter_metrics;
+DROP VIEW IF EXISTS condition_metrics;
+DROP VIEW IF EXISTS lab_vitals_metrics;
+DROP VIEW IF EXISTS medication_utilization_metrics;
+DROP VIEW IF EXISTS procedure_utilization_metrics;
+DROP VIEW IF EXISTS provider_performance_metrics;
 ```
 
-### 2. Load OMOP Vocabularies
+### Rollback Genie Space
 
 ```bash
-# Upload vocabulary files to DBFS
-databricks fs cp ./resources/vocabularies/ dbfs:/mnt/omop_semantic/vocabularies/ --recursive
+# Get space ID
+databricks api GET /api/2.0/genie/spaces
 
-# Run vocabulary load job
-databricks jobs run-now --job-id <vocabulary-load-job-id>
+# Delete space
+databricks api DELETE /api/2.0/genie/spaces/[SPACE_ID]
 ```
 
-### 3. Create OMOP CDM Tables
+## Security Best Practices
 
-```bash
-# Run DDL scripts
-databricks sql query -f ./sql/ddl/01_create_omop_tables.sql
-```
+1. **Never commit credentials**
+   - Use `.env` files (git-ignored)
+   - Use environment variables
+   - Use secret management systems
 
-## Verification
+2. **Use service principals for prod**
+   - Create dedicated service principal
+   - Grant minimal permissions
+   - Rotate credentials regularly
 
-After deployment, verify:
+3. **Encrypt sensitive data**
+   - Use Databricks secrets for tokens
+   - Terraform backend encryption
+   - Transit encryption for Snowflake
 
-```bash
-# Test SQL connection
-databricks sql query "SELECT COUNT(*) FROM dev_omop.gold_omop.person"
+4. **Audit deployments**
+   - Log all deployments
+   - Track who deployed what
+   - Review changes before applying
 
-# Run integration tests
-pytest tests/integration/
+## Cost Optimization
 
-# Check data quality
-databricks jobs run-now --job-id <data-quality-job-id>
-```
+### Serverless SQL Warehouse
 
-## Rollback Procedure
+- Auto-stops after 10 minutes
+- Pay-per-query pricing
+- No idle costs
 
-If deployment fails:
+### Metric Views
 
-```bash
-# List bundle deployments
-databricks bundle deployments list
+- No storage cost (views, not tables)
+- Query cost only when accessed
+- Cache results when possible
 
-# Rollback to previous version
-databricks bundle destroy -t dev
-git checkout <previous-commit>
-databricks bundle deploy -t dev
-```
+### Terraform State
 
-## Monitoring
+- Use remote backend
+- Enable state locking
+- Regular state cleanup
 
-Post-deployment monitoring:
+## Next Steps
 
-1. **Job Runs**: Monitor in Databricks Workflows UI
-2. **Query Performance**: Check SQL Warehouse query history
-3. **Data Quality**: Review quality check results
-4. **Costs**: Monitor DBU usage in account console
+After successful deployment:
 
-## Troubleshooting
+1. **Test Queries**
+   - Run sample queries on metric views
+   - Verify data accuracy
+   - Check performance
 
-### Common Issues
+2. **Configure Alerts**
+   - Set up failure notifications
+   - Monitor query performance
+   - Track usage metrics
 
-**Issue**: Bundle validation fails
-- **Solution**: Check `databricks.yml` syntax, ensure all referenced files exist
+3. **Documentation**
+   - Document custom configurations
+   - Create runbooks for common tasks
+   - Train team on Genie Space usage
 
-**Issue**: Authentication errors
-- **Solution**: Verify token is valid and not expired, check permissions
+4. **Iterate**
+   - Add more metric views as needed
+   - Enhance Genie Space instructions
+   - Optimize query performance
 
-**Issue**: Table not found errors
-- **Solution**: Ensure catalogs and schemas are created, check USE CATALOG statements
+## Support
 
-**Issue**: Permission denied
-- **Solution**: Verify user/service principal has required privileges
+For issues or questions:
 
-## Best Practices
-
-1. **Use service principals** for production deployments
-2. **Test in dev** before deploying to production
-3. **Version control** all deployment artifacts
-4. **Document changes** in deployment notes
-5. **Monitor costs** after deployment
-6. **Set up alerts** for failures
-7. **Maintain rollback plan** for quick recovery
-
-## Additional Resources
-
-- [Databricks Asset Bundles Documentation](https://docs.databricks.com/dev-tools/bundles/)
-- [Unity Catalog Deployment Guide](https://docs.databricks.com/data-governance/unity-catalog/)
-- [Databricks CLI Reference](https://docs.databricks.com/dev-tools/cli/)
+- **Documentation**: See `docs/` directory
+- **Recipes**: See `docs/recipes/` for specific tasks
+- **API Examples**: See `docs/api-examples/`
+- **GitHub Issues**: Submit bug reports/feature requests
 
 ---
 
-*Last updated: January 11, 2026*
+**Last Updated**: January 11, 2026  
+**Version**: 1.0.0  
+**Maintainer**: OMOP Semantic Layer Team

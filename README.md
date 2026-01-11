@@ -55,24 +55,29 @@ README.md             # This file
 
 ## 🚀 Quick Start
 
+### One-Command Deployment
+
+```bash
+# Clone the repository
+git clone https://github.com/jward-dbx/omop_semantic.git
+cd omop_semantic
+
+# Configure environment (see docs/setup/DEPLOYMENT.md)
+cp config/dev/.env.example config/dev/.env
+# Edit config/dev/.env with your credentials
+
+# Deploy everything
+./deploy.sh --env dev --component all
+```
+
 ### Prerequisites
-- Databricks workspace access
+- Databricks workspace with Unity Catalog
+- Snowflake account with OMOP CDM data
+- Terraform installed
+- Databricks CLI installed
 - Python 3.9+
-- Databricks CLI (optional)
 
-### Setup
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/jward-dbx/omop_semantic.git
-   cd omop_semantic
-   ```
-
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Configure workspace credentials (see `docs/setup/WORKSPACE_SETUP.md`)
+See [Deployment Guide](docs/setup/DEPLOYMENT.md) for detailed instructions.
 
 ## 🏪 Workspaces
 
@@ -125,6 +130,7 @@ This project implements **OMOP CDM v5.4** with:
   - Medication Utilization Metrics
   - Procedure Utilization Metrics
   - Provider Performance Metrics
+- **Genie Space**: Natural language interface for querying
 - **CI/CD Ready**: Databricks Asset Bundles for deployment
 - **Multi-Environment**: Parameterized for dev/prod deployments
 
@@ -134,11 +140,21 @@ This project implements **OMOP CDM v5.4** with:
 
 ## 📚 Documentation
 
-- [Setup Guide](docs/setup/WORKSPACE_SETUP.md) - Workspace configuration
-- [MCP Setup](docs/setup/MCP_SETUP.md) - Managed MCP server setup
+### Setup & Deployment
+- **[Deployment Guide](docs/setup/DEPLOYMENT.md)** - **START HERE** - Complete deployment walkthrough
+- [Workspace Setup](docs/setup/WORKSPACE_SETUP.md) - Initial workspace configuration
+- [MCP Setup](docs/setup/MCP_SETUP.md) - Managed MCP server configuration
+
+### Recipes & How-To
+- [Deploy Snowflake Connection](docs/recipes/deploy_snowflake_connection.md) - Terraform deployment
+- [Deploy Metric Views](docs/recipes/deploy_metric_views.md) - DABs deployment
+- [Genie Space Guide](docs/setup/GENIE.md) - Natural language interface
+
+### Architecture & API
 - [OMOP Implementation](docs/architecture/OMOP_IMPLEMENTATION.md) - OMOP CDM details
-- [Deploy Metric Views](docs/recipes/deploy_metric_views.md) - Semantic layer deployment
-- [Deploy Snowflake Connection](docs/recipes/deploy_snowflake_connection.md) - External connection setup
+- [Architecture Overview](docs/architecture/ARCHITECTURE.md) - System design
+- [API Examples](docs/api-examples/) - Databricks API usage
+- [Resources](docs/RESOURCES.md) - Links to external documentation
 
 ## 📄 License
 
